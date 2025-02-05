@@ -1,7 +1,7 @@
-package Service;
+package AvaliaEdu.demo.Service;
 
-import Model.Avaliacao;
-import Repository.AvaliacaoRepository;
+import AvaliaEdu.demo.Model.Avaliacao;
+import AvaliaEdu.demo.Repository.AvaliacaoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

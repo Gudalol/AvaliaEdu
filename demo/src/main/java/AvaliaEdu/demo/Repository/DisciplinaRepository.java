@@ -1,6 +1,6 @@
-package Repository;
+package AvaliaEdu.demo.Repository;
 
-import Model.Disciplina;
+import AvaliaEdu.demo.Model.Disciplina;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface DisciplinaRepository extends JpaRepository<Disciplina, Long> {

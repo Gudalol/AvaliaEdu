@@ -1,11 +1,10 @@
-package Controller;
+package AvaliaEdu.demo.Controller;
 
-import Model.Professor;
-import Service.ProfessorService;
+import AvaliaEdu.demo.Model.Professor;
+import AvaliaEdu.demo.Service.ProfessorService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.ui.Model;
 import java.util.List;
 
 @RestController
@@ -18,7 +17,7 @@ public class ProfessorController {
     @GetMapping
     public String listarProfessores(Model model){
         List<Professor> professores = professorService.listarProfessor();
-        model.addAtribute("professore", professores);
+        model.addAttribute("professore", professores);
         return "professores";
     }
 

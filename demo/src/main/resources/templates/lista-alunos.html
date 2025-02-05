@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Alunos</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .pagination {
+            margin-top: 20px;
+        }
+        .pagination a {
+            margin: 0 5px;
+            text-decoration: none;
+            color: #007bff;
+        }
+        .pagination span {
+            margin: 0 5px;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+<h1>Lista de Alunos</h1>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>Idade</th>
+        <th>Email</th>
+        <th>Ações</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="aluno : ${alunos}">
+        <td th:text="${aluno.id}"></td>
+        <td th:text="${aluno.nome}"></td>
+        <td th:text="${aluno.idade}"></td>
+        <td th:text="${aluno.email}"></td>
+        <td>
+            <a th:href="@{/alunos/excluir/{id}(id=${aluno.id})}">Excluir</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<div class="pagination" th:if="${totalPaginas > 1}">
+        <span th:each="i : ${#numbers.sequence(1, totalPaginas)}">
+            <a th:if="${i != paginaAtual}" th:href="@{/alunos/listar(pagina=${i})}" th:text="${i}"></a>
+            <span th:unless="${i != paginaAtual}" th:text="${i}"></span>
+        </span>
+</div>
+
+<a th:href="@{/alunos/form}">Cadastrar Novo Aluno</a>
+</body>
+</html>

@@ -1,9 +1,11 @@
-package Controller;
+package AvaliaEdu.demo.Controller;
 
-import Model.Avaliacao;
-import Service.AvaliacaoService;
+import AvaliaEdu.demo.Model.Avaliacao;
+import AvaliaEdu.demo.Service.AvaliacaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.ui.Model;
+
 
 import java.util.List;
 
@@ -17,7 +19,7 @@ public class AvaliacaoController {
     @GetMapping
     public String listarAvaliacoes(Model model) {
         List<Avaliacao> avaliacoes = avaliacaoService.listaAvaliacoes();
-        model.addAttribute("avaliacoes", avaliacoes);
+        model.addAttribute("avaliacoes",avaliacoes);
         return "avaliacoes";
     }
 
