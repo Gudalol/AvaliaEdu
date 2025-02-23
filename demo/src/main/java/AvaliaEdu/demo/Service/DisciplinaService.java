@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class DisciplinaService {
@@ -16,17 +17,27 @@ public class DisciplinaService {
         return disciplinaRepository.findAll();
     }
 
-    public Disciplina getDisciplinaById(Long id) {
-        return disciplinaRepository.findById(id).get();
+    public Optional<Disciplina> getDisciplinaById(Long id) {
+        return disciplinaRepository.findById(id);
     }
 
     public Disciplina saveDisciplina(Disciplina disciplina) {
         return disciplinaRepository.save(disciplina);
     }
+    public Disciplina updateDisciplina(Long id, Disciplina disciplinaAtualizada) {
+        Disciplina disciplinaExistente = disciplinaRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Disciplina não encontrada"));
+        
+        disciplinaExistente.setNome(disciplinaAtualizada.getNome());
+        // Atualize outros campos conforme necessário
+        
+        return disciplinaRepository.save(disciplinaExistente);
+    }
 
     public void deleteDisciplina(Long id) {
+        if (!disciplinaRepository.existsById(id)) {
+            throw new RuntimeException("Disciplina não encontrada");
+        }
         disciplinaRepository.deleteById(id);
-
     }
 }
-

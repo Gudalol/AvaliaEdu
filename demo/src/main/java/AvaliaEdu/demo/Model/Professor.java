@@ -5,6 +5,8 @@ import lombok.*;
 
 import java.util.List;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,10 +18,13 @@ public class Professor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @NotBlank(message = "O nome não pode estar em branco")
+    @Column(nullable = false)
     private String nome;
 
-    @Column
+    @NotBlank(message = "O email não pode estar em branco")
+    @Email(message = "Email deve ser válido")
+    @Column(nullable = false)
     private String email;
 
     public Long getId() {

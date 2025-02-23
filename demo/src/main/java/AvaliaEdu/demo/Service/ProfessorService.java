@@ -21,6 +21,10 @@ public class ProfessorService {
         return professorRepository.save(professor);
     }
 
+    public boolean professorExists(Long id) {
+        return professorRepository.existsById(id);
+    }
+
     public void excluirProfessor(Long id) {
         professorRepository.deleteById(id);
     }

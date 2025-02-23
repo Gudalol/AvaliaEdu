@@ -1,12 +1,12 @@
 package AvaliaEdu.demo.Model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
 
 import java.util.List;
 
-import lombok.*;
-
-
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -16,24 +16,9 @@ public class Disciplina {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @NotBlank(message = "O nome da disciplina é obrigatório")
+    @Column(nullable = false)
     private String nome;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
 
     @ManyToOne
     @JoinColumn(name = "professor_id")
@@ -41,4 +26,5 @@ public class Disciplina {
 
     @OneToMany(mappedBy = "disciplina", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Avaliacao> avaliacoes;
+
 }

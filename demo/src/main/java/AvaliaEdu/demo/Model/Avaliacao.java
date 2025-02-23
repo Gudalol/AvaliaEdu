@@ -1,9 +1,12 @@
 package AvaliaEdu.demo.Model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import jakarta.validation.constraints.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
-
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -13,45 +16,28 @@ public class Avaliacao {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
-    private int nota;
+    @NotNull(message = "A nota é obrigatória")
+    @Min(value = 0, message = "A nota deve ser maior ou igual a 0")
+    @Max(value = 10, message = "A nota deve ser menor ou igual a 10")
+    @Column(nullable = false)
+    private Integer nota;
 
-    @Column
+    @Size(max = 500, message = "A descrição não pode ter mais de 500 caracteres")
+    @Column(length = 500)
     private String descricao;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public int getNota() {
-        return nota;
-    }
-
-    public void setNota(int nota) {
-        this.nota = nota;
-    }
-
-    public String getDescricao() {
-        return descricao;
-    }
-
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
-    }
-
+    @NotNull(message = "O aluno é obrigatório")
     @ManyToOne
-    @JoinColumn(name = "aluno_id")
+    @JoinColumn(name = "aluno_id", nullable = false)
     private Aluno aluno;
 
+    @NotNull(message = "O professor é obrigatório")
     @ManyToOne
-    @JoinColumn(name = "professor_id")
+    @JoinColumn(name = "professor_id", nullable = false)
     private Professor professor;
 
+    @NotNull(message = "A disciplina é obrigatória")
     @ManyToOne
-    @JoinColumn(name = "disciplina_id")
+    @JoinColumn(name = "disciplina_id", nullable = false)
     private Disciplina disciplina;
 }

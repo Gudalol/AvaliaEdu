@@ -4,8 +4,8 @@ import AvaliaEdu.demo.Model.Avaliacao;
 import AvaliaEdu.demo.Repository.AvaliacaoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AvaliacaoService {
@@ -17,14 +17,18 @@ public class AvaliacaoService {
         return avaliacaoRepository.findAll();
     }
 
-    public Avaliacao getAvaliacao(Long id) {
-        return avaliacaoRepository.findById(id).get();
+    public Optional<Avaliacao> buscarAvaliacao(Long id) {
+        return avaliacaoRepository.findById(id);
     }
+
     public Avaliacao salvarAvaliacao(Avaliacao avaliacao) {
         return avaliacaoRepository.save(avaliacao);
     }
 
     public void excluirAvaliacao(Long id) {
+        if (!avaliacaoRepository.existsById(id)) {
+            throw new RuntimeException("Avaliação não encontrada");
+        }
         avaliacaoRepository.deleteById(id);
     }
 }
