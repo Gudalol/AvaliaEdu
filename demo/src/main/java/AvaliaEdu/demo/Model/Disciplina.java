@@ -1,5 +1,6 @@
 package AvaliaEdu.demo.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -25,6 +26,7 @@ public class Disciplina {
     private Professor professor;
 
     @OneToMany(mappedBy = "disciplina", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Avaliacao> avaliacoes;
 
 }

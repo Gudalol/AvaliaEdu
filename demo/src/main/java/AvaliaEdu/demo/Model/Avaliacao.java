@@ -1,5 +1,6 @@
 package AvaliaEdu.demo.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
@@ -11,7 +12,9 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 @Entity
 @Table(name = "tb_avaliacao")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) // útil para lazy loading
 public class Avaliacao {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

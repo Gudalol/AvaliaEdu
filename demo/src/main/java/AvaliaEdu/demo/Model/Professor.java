@@ -1,13 +1,14 @@
 package AvaliaEdu.demo.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
-
+import jakarta.validation.constraints.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import java.util.List;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -18,39 +19,13 @@ public class Professor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "O nome não pode estar em branco")
-    @Column(nullable = false)
+    @NotBlank(message = "Nome é obrigatório")
     private String nome;
 
-    @NotBlank(message = "O email não pode estar em branco")
-    @Email(message = "Email deve ser válido")
-    @Column(nullable = false)
+    @NotBlank(message = "Email é obrigatório")
     private String email;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    @OneToMany(mappedBy = "professor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "professor", fetch = FetchType.LAZY)
+    @JsonIgnore // Evita recursão
     private List<Avaliacao> avaliacoes;
 }

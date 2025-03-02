@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Data;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 @Data
 @NoArgsConstructor
@@ -38,5 +40,6 @@ public class Aluno {
     private String senha;
 
     @OneToMany(mappedBy = "aluno", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Avaliacao> avaliacoes;
 }
