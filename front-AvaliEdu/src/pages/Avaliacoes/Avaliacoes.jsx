@@ -20,7 +20,6 @@ import {
   MenuItem
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {
   avaliacaoService,
@@ -29,7 +28,6 @@ import {
   disciplinaService
 } from '@services';
 
-// Função auxiliar para garantir que o dado seja um array
 const extractArray = (data) => {
   if (Array.isArray(data)) return data;
   if (data && data.content && Array.isArray(data.content)) return data.content;
@@ -42,7 +40,6 @@ const Avaliacoes = () => {
   const [professores, setProfessores] = useState([]);
   const [disciplinas, setDisciplinas] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [filtroAluno, setFiltroAluno] = useState("");
   const [novaAvaliacao, setNovaAvaliacao] = useState({
     nota: '',
@@ -51,7 +48,6 @@ const Avaliacoes = () => {
     professorId: '',
     disciplinaId: ''
   });
-  const [avaliacaoEditando, setAvaliacaoEditando] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -109,7 +105,6 @@ const Avaliacoes = () => {
     const professorId = parseInt(novaAvaliacao.professorId, 10);
     const disciplinaId = parseInt(novaAvaliacao.disciplinaId, 10);
 
-    // Monta o payload conforme o esperado pelo backend (objetos aninhados)
     const avaliacaoFormatada = {
       nota,
       descricao: novaAvaliacao.descricao,
@@ -117,6 +112,9 @@ const Avaliacoes = () => {
       professor: { id: professorId },
       disciplina: { id: disciplinaId }
     };
+
+    const confirmar = window.confirm("Tem certeza que terminou? Não será possível editar depois.");
+    if (!confirmar) return;
 
     console.log("Payload da avaliação:", JSON.stringify(avaliacaoFormatada, null, 2));
 
@@ -153,66 +151,6 @@ const Avaliacoes = () => {
       setAvaliacoes(avaliacoes.filter(a => a.id !== id));
     } catch (error) {
       console.error("Erro ao excluir avaliação:", error);
-    }
-  };
-
-  const handleAbrirEdicao = (avaliacao) => {
-    console.log("Avaliação para edição:", avaliacao);
-    if (!avaliacao.id) {
-      console.error("Avaliação sem ID:", avaliacao);
-      alert("Esta avaliação não possui um ID válido e não pode ser editada.");
-      return;
-    }
-    // Prepara os campos para os Selects (extrai os IDs dos objetos aninhados)
-    setAvaliacaoEditando({
-      ...avaliacao,
-      alunoId: avaliacao.aluno?.id || '',
-      professorId: avaliacao.professor?.id || '',
-      disciplinaId: avaliacao.disciplina?.id || ''
-    });
-    setIsEditModalOpen(true);
-  };
-
-  const handleSalvarEdicao = async () => {
-    if (!avaliacaoEditando) {
-      console.error("Erro: Nenhuma avaliação selecionada para edição.");
-      alert("Erro: Nenhuma avaliação selecionada para edição.");
-      return;
-    }
-    if (!avaliacaoEditando.id) {
-      console.error("Erro: ID da avaliação não está definido.", avaliacaoEditando);
-      alert("Erro: ID da avaliação não está definido.");
-      return;
-    }
-    const nota = parseFloat(avaliacaoEditando.nota);
-    if (isNaN(nota)) {
-      alert("A nota deve ser um número válido!");
-      return;
-    }
-    const alunoId = parseInt(avaliacaoEditando.alunoId, 10);
-    const professorId = parseInt(avaliacaoEditando.professorId, 10);
-    const disciplinaId = parseInt(avaliacaoEditando.disciplinaId, 10);
-
-    const avaliacaoFormatada = {
-      nota,
-      descricao: avaliacaoEditando.descricao,
-      aluno: { id: alunoId },
-      professor: { id: professorId },
-      disciplina: { id: disciplinaId }
-    };
-
-    console.log("Payload de edição da avaliação:", JSON.stringify(avaliacaoFormatada, null, 2));
-
-    try {
-      await avaliacaoService.update(avaliacaoEditando.id, avaliacaoFormatada);
-      console.log("Avaliação atualizada com sucesso! Recarregando lista...");
-      const response = await avaliacaoService.getAll();
-      setAvaliacoes(extractArray(response.data));
-      setIsEditModalOpen(false);
-      setAvaliacaoEditando(null);
-    } catch (error) {
-      console.error("Erro ao editar avaliação:", error.response?.data || error);
-      alert("Erro ao editar avaliação.");
     }
   };
 
@@ -276,12 +214,6 @@ const Avaliacoes = () => {
                       <TableCell>{aval.descricao}</TableCell>
                       <TableCell>
                         <Button
-                          onClick={() => handleAbrirEdicao(aval)}
-                          sx={{ backgroundColor: "#09b800", color: "#fff", minWidth: "40px", p: "5px", mr: 1 }}
-                        >
-                          <EditIcon sx={{ color: "#fff" }} />
-                        </Button>
-                        <Button
                           onClick={() => handleExcluirAvaliacao(aval.id)}
                           sx={{ backgroundColor: "#ff0000", color: "#fff", minWidth: "40px", p: "5px" }}
                         >
@@ -296,7 +228,6 @@ const Avaliacoes = () => {
         </Grid>
       )}
 
-      {/* Modal para criar nova avaliação */}
       <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <Box sx={{
           position: 'absolute',
@@ -377,91 +308,6 @@ const Avaliacoes = () => {
             sx={{ mt: 2, backgroundColor: '#09b800' }}
           >
             Salvar Avaliação
-          </Button>
-        </Box>
-      </Modal>
-
-      {/* Modal para editar avaliação */}
-      <Modal open={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
-        <Box sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 600,
-          bgcolor: 'background.paper',
-          p: 4,
-          borderRadius: 2
-        }}>
-          <Typography variant="h6" mb={3}>Editar Avaliação</Typography>
-
-          <TextField
-            label="Nota"
-            type="number"
-            fullWidth
-            margin="normal"
-            value={avaliacaoEditando?.nota || ''}
-            onChange={(e) => setAvaliacaoEditando({ ...avaliacaoEditando, nota: e.target.value })}
-          />
-
-          <TextField
-            label="Descrição"
-            multiline
-            rows={4}
-            fullWidth
-            margin="normal"
-            value={avaliacaoEditando?.descricao || ''}
-            onChange={(e) => setAvaliacaoEditando({ ...avaliacaoEditando, descricao: e.target.value })}
-          />
-
-          <Select
-            fullWidth
-            value={avaliacaoEditando?.alunoId || ''}
-            onChange={(e) => setAvaliacaoEditando({ ...avaliacaoEditando, alunoId: e.target.value })}
-            displayEmpty
-          >
-            <MenuItem value="">Selecione o Aluno</MenuItem>
-            {alunos.map((aluno) => (
-              <MenuItem key={aluno.id} value={aluno.id}>
-                {aluno.nome}
-              </MenuItem>
-            ))}
-          </Select>
-
-          <Select
-            fullWidth
-            value={avaliacaoEditando?.professorId || ''}
-            onChange={(e) => setAvaliacaoEditando({ ...avaliacaoEditando, professorId: e.target.value })}
-            displayEmpty
-          >
-            <MenuItem value="">Selecione o Professor</MenuItem>
-            {professores.map((prof) => (
-              <MenuItem key={prof.id} value={prof.id}>
-                {prof.nome}
-              </MenuItem>
-            ))}
-          </Select>
-
-          <Select
-            fullWidth
-            value={avaliacaoEditando?.disciplinaId || ''}
-            onChange={(e) => setAvaliacaoEditando({ ...avaliacaoEditando, disciplinaId: e.target.value })}
-            displayEmpty
-          >
-            <MenuItem value="">Selecione a Disciplina</MenuItem>
-            {disciplinas.map((disc) => (
-              <MenuItem key={disc.id} value={disc.id}>
-                {disc.nome}
-              </MenuItem>
-            ))}
-          </Select>
-
-          <Button
-            variant="contained"
-            onClick={handleSalvarEdicao}
-            sx={{ mt: 2, backgroundColor: '#09b800' }}
-          >
-            Salvar Alterações
           </Button>
         </Box>
       </Modal>
