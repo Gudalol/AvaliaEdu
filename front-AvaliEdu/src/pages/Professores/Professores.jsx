@@ -127,7 +127,7 @@ const Professores = () => {
   };
 
   return (
-    <Grid container spacing={3}>
+    <Grid container spacing={4} justifyContent="center">
       <Grid item xs={12}>
         <Menu />
       </Grid>
@@ -155,11 +155,11 @@ const Professores = () => {
       </Grid>
 
       {isLoading ? (
-        <Grid item xs={12} textAlign="center">
+        <Grid item xs={10} textAlign="center">
           <CircularProgress />
         </Grid>
       ) : (
-        <Grid item xs={12}>
+        <Grid item xs={10}>
           <TableContainer component={Paper}>
             <Table>
               <TableHead>

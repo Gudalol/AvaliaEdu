@@ -126,7 +126,7 @@ const Disciplinas = () => {
   };
 
   return (
-    <Grid container spacing={3}>
+    <Grid container spacing={4} justifyContent="center">
       <Grid item xs={12}>
         <Menu />
       </Grid>
@@ -141,7 +141,7 @@ const Disciplinas = () => {
         />
       </Grid>
 
-      <Grid item xs={12} textAlign="right" p={3}>
+      <Grid item xs={10} textAlign="right" p={3}>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
@@ -157,7 +157,7 @@ const Disciplinas = () => {
       ) : disciplinas.length === 0 ? (
         <Typography variant="h5">Nenhuma disciplina cadastrada</Typography>
       ) : (
-        <Grid item xs={12}>
+        <Grid item xs={10}>
           <TableContainer component={Paper}>
             <Table>
               <TableHead>

@@ -155,7 +155,7 @@ const Avaliacoes = () => {
   };
 
   return (
-    <Grid container spacing={3}>
+    <Grid container spacing={4} justifyContent="center">
       <Grid item xs={12}>
         <Menu />
       </Grid>
@@ -170,7 +170,7 @@ const Avaliacoes = () => {
         />
       </Grid>
 
-      <Grid item xs={12} textAlign="right" p={3}>
+      <Grid item xs={10} textAlign="right" p={3}>
         <Button
           variant="contained"
           color="primary"
@@ -187,7 +187,7 @@ const Avaliacoes = () => {
       ) : avaliacoes.length === 0 ? (
         <Typography variant="h5">Nenhuma avaliação cadastrada</Typography>
       ) : (
-        <Grid item xs={12}>
+        <Grid item xs={10}>
           <TableContainer component={Paper}>
             <Table>
               <TableHead>
