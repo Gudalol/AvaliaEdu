@@ -34,3 +34,5 @@ se ja tiver instalado desconsidere o comando acima.
 ```bash
  C:\AvaliarDisciplina\AvaliaEdu\front-AvaliEdu> npm run dev    
 ```
+
+Fazer o filtro funcionar
