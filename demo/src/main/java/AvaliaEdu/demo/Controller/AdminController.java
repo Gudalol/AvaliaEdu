@@ -2,6 +2,12 @@ package AvaliaEdu.demo.Controller;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import AvaliaEdu.demo.Model.Admin;
+import AvaliaEdu.demo.Repository.AdminRepository;
+import AvaliaEdu.demo.Repository.AlunoRepository;
+import AvaliaEdu.demo.Repository.ProfessorRepository;
+
 import java.util.List;
 
 @RestController
@@ -21,19 +27,16 @@ public class AdminController {
         this.adminRepository = adminRepository;
     }
 
-    // 1️⃣ Criar um novo admin
     @PostMapping("/novo-admin")
     public Admin criarAdmin(@RequestBody Admin admin) {
         return adminRepository.save(admin);
     }
 
-    // 2️⃣ Listar todos os admins (caso necessário)
     @GetMapping("/admins")
     public List<Admin> listarAdmins() {
         return adminRepository.findAll();
     }
 
-    // 3️⃣ Excluir um aluno
     @DeleteMapping("/alunos/{id}")
     public String excluirAluno(@PathVariable Long id) {
         if (alunoRepository.existsById(id)) {

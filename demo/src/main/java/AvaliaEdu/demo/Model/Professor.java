@@ -22,8 +22,14 @@ public class Professor {
     @NotBlank(message = "Nome é obrigatório")
     private String nome;
 
+    @Email(message = "Email deve ser válido")
+    @Column(nullable = false, unique = true)
     @NotBlank(message = "Email é obrigatório")
     private String email;
+
+    @NotBlank(message = "A senha não pode estar em branco")
+    @Column(nullable = false)
+    private String senha;
 
     @Enumerated(EnumType.STRING)
     private Role role = Role.TEACHER;

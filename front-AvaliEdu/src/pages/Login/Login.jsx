@@ -19,12 +19,32 @@ const Login = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    const isAdmin = username.toLowerCase() === "admin" && password.toLowerCase() === "admin";
-
-    if (isAdmin) {
-      navigate("/home");
-    } else {
+  const handleLogin = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/auth/login", { 
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: username, senha: password })
+      });
+  
+      if (!response.ok) {
+        throw new Error("Credenciais inválidas");
+      }
+  
+      const data = await response.json();
+      console.log("Usuário autenticado:", data.user, "Role:", data.role);
+  
+      // Redirecionando de acordo com a permissão
+      if (data.role === "ADMIN") {
+        navigate("/admin");
+      } else if (data.role === "TEACHER") {
+        navigate("/professor");
+      } else {
+        navigate("/aluno");
+      }
+  
+    } catch (error) {
+      console.error("Erro no login:", error);
       setOpenSnackbar(true);
     }
   };

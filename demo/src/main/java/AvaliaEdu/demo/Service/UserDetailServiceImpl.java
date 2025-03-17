@@ -1,13 +1,12 @@
-package AvaliaEdu.demo.security;
+package AvaliaEdu.demo.Service;
 
-import AvaliaEdu.demo.model.Aluno;
-import AvaliaEdu.demo.model.Professor;
-import AvaliaEdu.demo.model.Admin;
-import AvaliaEdu.demo.repository.AlunoRepository;
-import AvaliaEdu.demo.repository.ProfessorRepository;
-import AvaliaEdu.demo.repository.AdminRepository;
+import AvaliaEdu.demo.Model.Aluno;
+import AvaliaEdu.demo.Model.Professor;
+import AvaliaEdu.demo.Model.Admin;
+import AvaliaEdu.demo.Repository.AlunoRepository;
+import AvaliaEdu.demo.Repository.ProfessorRepository;
+import AvaliaEdu.demo.Repository.AdminRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -17,13 +16,13 @@ import java.util.Collections;
 import java.util.Optional;
 
 @Service
-public class UserDetailsServiceImpl implements UserDetailsService {
+public class UserDetailServiceImpl implements UserDetailsService {
 
     private final AlunoRepository alunoRepository;
     private final ProfessorRepository professorRepository;
     private final AdminRepository adminRepository;
 
-    public UserDetailsServiceImpl(AlunoRepository alunoRepository, ProfessorRepository professorRepository, AdminRepository adminRepository) {
+    public UserDetailServiceImpl(AlunoRepository alunoRepository, ProfessorRepository professorRepository, AdminRepository adminRepository) {
         this.alunoRepository = alunoRepository;
         this.professorRepository = professorRepository;
         this.adminRepository = adminRepository;
@@ -31,36 +30,18 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Optional<Aluno> alunoOpt = alunoRepository.findByEmail(email);
-        if (alunoOpt.isPresent()) {
-            Aluno aluno = alunoOpt.get();
-            return new User(
-                aluno.getEmail(),
-                aluno.getSenha(),
-                Collections.singleton(new SimpleGrantedAuthority("USER"))
-            );
-        }
-
-        Optional<Professor> professorOpt = professorRepository.findByEmail(email);
-        if (professorOpt.isPresent()) {
-            Professor professor = professorOpt.get();
-            return new User(
-                professor.getEmail(),
-                professor.getSenha(),
-                Collections.singleton(new SimpleGrantedAuthority("TEACHER"))
-            );
-        }
-
-        Optional<Admin> adminOpt = adminRepository.findByEmail(email);
-        if (adminOpt.isPresent()) {
-            Admin admin = adminOpt.get();
-            return new User(
-                admin.getEmail(),
-                admin.getSenha(),
-                Collections.singleton(new SimpleGrantedAuthority("ADMIN"))
-            );
-        }
-
-        throw new UsernameNotFoundException("Usuário não encontrado");
+        return alunoRepository.findByEmail(email).map(aluno ->
+            new org.springframework.security.core.userdetails.User(
+                aluno.getEmail(), aluno.getSenha(), Collections.singleton(new SimpleGrantedAuthority("USER"))
+            )
+        ).orElseGet(() -> professorRepository.findByEmail(email).map(professor ->
+            new org.springframework.security.core.userdetails.User(
+                professor.getEmail(), professor.getSenha(), Collections.singleton(new SimpleGrantedAuthority("TEACHER"))
+            )
+        ).orElseGet(() -> adminRepository.findByEmail(email).map(admin ->
+            new org.springframework.security.core.userdetails.User(
+                admin.getEmail(), admin.getSenha(), Collections.singleton(new SimpleGrantedAuthority("ADMIN"))
+            )
+        ).orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"))));
     }
 }
