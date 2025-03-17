@@ -34,7 +34,10 @@ const Login = () => {
       const data = await response.json();
       console.log("Usuário autenticado:", data.user, "Role:", data.role);
   
-      // Redirecionando de acordo com a permissão
+      // Salvando a role no localStorage para usarmos depois
+      localStorage.setItem("userRole", data.role);
+  
+      // Redirecionando baseado na permissão
       if (data.role === "ADMIN") {
         navigate("/admin");
       } else if (data.role === "TEACHER") {
@@ -48,6 +51,7 @@ const Login = () => {
       setOpenSnackbar(true);
     }
   };
+  
 
   const handleCloseSnackbar = () => {
     setOpenSnackbar(false);

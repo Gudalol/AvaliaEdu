@@ -23,6 +23,8 @@ import { Project } from "@pages/Project";
 import { Alunos } from "@pages/Alunos";
 import { Professores } from "@pages/Professores";
 
+import PrivateRoute from "@components/PrivateRoute";
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -30,29 +32,35 @@ const router = createBrowserRouter([
   },
   {
     path: "/home",
-    element: <Home />,
+    element: <PrivateRoute allowedRoles={["USER", "TEACHER", "ADMIN"]}><Home /></PrivateRoute>,
   },
   {
     path: "/Alunos",
-    element: <Alunos />,
+    element: <PrivateRoute allowedRoles={["USER", "TEACHER", "ADMIN"]}><Alunos /></PrivateRoute>,
   },
   {
     path: "/Disciplinas",
-    element: <Disciplinas />,
+    element: <PrivateRoute allowedRoles={["USER", "TEACHER", "ADMIN"]}><Disciplinas /></PrivateRoute>,
   },
   {
     path: "/Avaliacoes",
-    element: <Avaliacoes />,
+    element: <PrivateRoute allowedRoles={["USER", "TEACHER", "ADMIN"]}><Avaliacoes /></PrivateRoute>,
   },
   {
     path: "/project",
-    element: <Project />,
+    element: <PrivateRoute allowedRoles={["USER", "TEACHER", "ADMIN"]}><Project /></PrivateRoute>,
   },
-  { 
+  {
     path: "/professores",
-    element: <Professores />,
+    element: <PrivateRoute allowedRoles={["TEACHER", "ADMIN"]}><Professores /></PrivateRoute>,
+  },
+  {
+    path: "/unauthorized",
+    element: <Unauthorized />,
   },
 ]);
+
+
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(

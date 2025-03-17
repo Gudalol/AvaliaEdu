@@ -11,7 +11,7 @@ import AvaliaEdu.demo.Repository.ProfessorRepository;
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin")
+@RequestMapping("/api/admin")
 @PreAuthorize("hasAuthority('ADMIN')") // Somente Admin pode acessar
 public class AdminController {
 
