@@ -25,6 +25,9 @@ public class Professor {
     @NotBlank(message = "Email é obrigatório")
     private String email;
 
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.TEACHER;
+
     @OneToMany(mappedBy = "professor", fetch = FetchType.LAZY)
     @JsonIgnore // Evita recursão
     private List<Avaliacao> avaliacoes;

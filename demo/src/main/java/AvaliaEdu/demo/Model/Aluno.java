@@ -39,6 +39,9 @@ public class Aluno {
     @Column(nullable = false)
     private String senha;
 
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.USER;
+
     @OneToMany(mappedBy = "aluno", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Avaliacao> avaliacoes;

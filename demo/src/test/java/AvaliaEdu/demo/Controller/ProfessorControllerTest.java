@@ -34,7 +34,7 @@ public class ProfessorControllerTest {
 
     @Test
     public void testAtualizarProfessor_Sucesso() {
-        Professor professor = new Professor(1L, "Nome Atualizado", "email@exemplo.com", null);
+        Professor professor = new Professor(1L, "Nome Atualizado", "email@exemplo.com", null, null);
         BindingResult bindingResult = new BeanPropertyBindingResult(professor, "professor");
 
         when(professorService.salvarProfessor(any(Professor.class))).thenReturn(professor);
@@ -48,7 +48,7 @@ public class ProfessorControllerTest {
 
     @Test
     public void testAtualizarProfessor_Erro() {
-        Professor professor = new Professor(null, "Nome Atualizado", "email@exemplo.com", null);
+        Professor professor = new Professor(null, "Nome Atualizado", "email@exemplo.com", null, null);
         BindingResult bindingResult = new BeanPropertyBindingResult(professor, "professor");
 
         when(professorService.salvarProfessor(any(Professor.class)))
