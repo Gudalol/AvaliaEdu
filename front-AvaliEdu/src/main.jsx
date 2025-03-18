@@ -23,7 +23,9 @@ import { Project } from "@pages/Project";
 import { Alunos } from "@pages/Alunos";
 import { Professores } from "@pages/Professores";
 
-import PrivateRoute from "@components/PrivateRoute";
+import PrivateRoute from "@comp/Route/PrivateRoute.jsx";
+import Unauthorized from "@comp/Route/Unauthorized.jsx";
+
 
 const router = createBrowserRouter([
   {
