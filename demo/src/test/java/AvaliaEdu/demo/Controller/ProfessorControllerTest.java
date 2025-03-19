@@ -34,7 +34,7 @@ public class ProfessorControllerTest {
 
     @Test
     public void testAtualizarProfessor_Sucesso() {
-        Professor professor = new Professor(1L, "Nome Atualizado", "email@exemplo.com", null, null);
+        Professor professor = new Professor(1L, "Nome Atualizado", "email@exemplo.com", null, null, null);
         BindingResult bindingResult = new BeanPropertyBindingResult(professor, "professor");
 
         when(professorService.salvarProfessor(any(Professor.class))).thenReturn(professor);
@@ -48,7 +48,7 @@ public class ProfessorControllerTest {
 
     @Test
     public void testAtualizarProfessor_Erro() {
-        Professor professor = new Professor(null, "Nome Atualizado", "email@exemplo.com", null, null);
+        Professor professor = new Professor(null, "Nome Atualizado", "email@exemplo.com", null, null, null);
         BindingResult bindingResult = new BeanPropertyBindingResult(professor, "professor");
 
         when(professorService.salvarProfessor(any(Professor.class)))
@@ -62,7 +62,7 @@ public class ProfessorControllerTest {
 
     @Test
     public void testAtualizarProfessor_NomeVazio() {
-        Professor professor = new Professor(null, "", "email@exemplo.com", null);
+        Professor professor = new Professor(null, "", "email@exemplo.com", null, null, null);
         BindingResult bindingResult = new BeanPropertyBindingResult(professor, "professor");
         bindingResult.rejectValue("nome", "NotBlank", "O nome é obrigatório");
 
@@ -74,7 +74,7 @@ public class ProfessorControllerTest {
 
     @Test
     public void testSalvarProfessor_Sucesso() {
-        Professor professor = new Professor(null, "Nome", "email@exemplo.com", null);
+        Professor professor = new Professor(null, "Nome", "email@exemplo.com", null, null, null);
         BindingResult bindingResult = new BeanPropertyBindingResult(professor, "professor");
 
         when(professorService.salvarProfessor(any(Professor.class))).thenReturn(professor);
@@ -88,7 +88,7 @@ public class ProfessorControllerTest {
 
     @Test
     public void testSalvarProfessor_EmailVazio() {
-        Professor professor = new Professor(null, "Nome", "", null);
+        Professor professor = new Professor(null, "Nome", "", null, null, null);
         BindingResult bindingResult = new BeanPropertyBindingResult(professor, "professor");
         bindingResult.rejectValue("email", "NotBlank", "O email é obrigatório");
 
@@ -101,8 +101,8 @@ public class ProfessorControllerTest {
     @Test
     public void testListarProfessores() {
         List<Professor> professores = Arrays.asList(
-            new Professor(1L, "Professor 1", "prof1@exemplo.com", null),
-            new Professor(2L, "Professor 2", "prof2@exemplo.com", null)
+            new Professor(1L, "Professor 1", "prof1@exemplo.com", null, null, null),
+            new Professor(2L, "Professor 2", "prof2@exemplo.com", null, null, null)
         );
 
         when(professorService.listarProfessor()).thenReturn(professores);
