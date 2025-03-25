@@ -20,7 +20,7 @@ public class ProfessorController {
 
     @GetMapping
     public ResponseEntity<List<Professor>> listarProfessores() {
-        return ResponseEntity.ok(professorService.listarProfessor());
+        return ResponseEntity.ok(professorService.listarProfessores());
     }
 
     @PostMapping
