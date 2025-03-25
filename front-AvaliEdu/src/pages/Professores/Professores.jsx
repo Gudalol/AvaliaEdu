@@ -206,43 +206,45 @@ const Professores = () => {
       )}
 
       {/* Modal para criar novo professor */}
-      <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <Box sx={{ 
-          position: 'absolute', 
-          top: '50%', 
-          left: '50%', 
-          transform: 'translate(-50%, -50%)', 
+        <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)}>
+          <Box
+            sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%", 
+          transform: "translate(-50%, -50%)",
           width: 400,
-          bgcolor: 'background.paper',
+          bgcolor: "background.paper",
           boxShadow: 24,
-          p: 4 
-        }}>
-          <Typography variant="h6" mb={2}>Novo Professor</Typography>
-          <TextField
-            label="Nome"
-            fullWidth
-            margin="normal"
-            value={novoProfessor.nome}
-            onChange={(e) => setNovoProfessor({ ...novoProfessor, nome: e.target.value })}
-          />
-          <TextField
-            label="Email"
-            fullWidth
-            margin="normal"
-            value={novoProfessor.email}
-            onChange={(e) => setNovoProfessor({ ...novoProfessor, email: e.target.value })}
-          />
-          <Button 
-            variant="contained" 
-            onClick={handleSubmit}
-            sx={{ mt: 2, backgroundColor: "#09b800" }}
+          p: 4
+            }}
           >
-            Salvar
-          </Button>
-        </Box>
-      </Modal>
-
-      {/* Modal para editar professor */}
+            <Typography variant="h6" mb={2}>Novo Professor</Typography>
+            <TextField
+          label="Nome"
+          fullWidth
+          margin="normal"
+          value={novoProfessor.nome}
+          onChange={(e) => setNovoProfessor({ ...novoProfessor, nome: e.target.value })}
+            />
+            <TextField
+          label="Email" 
+          fullWidth
+          margin="normal"
+          value={novoProfessor.email}
+          onChange={(e) => setNovoProfessor({ ...novoProfessor, email: e.target.value })}
+            />
+            <Button
+          variant="contained"
+          sx={{ mt: 2, backgroundColor: "#09b800" }}
+          onClick={handleSubmit}
+            >
+          Salvar
+            </Button>
+          </Box>
+        </Modal>
+        
+        {/* Modal para editar professor */}
       <Modal open={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
         <Box sx={{ 
           position: 'absolute', 

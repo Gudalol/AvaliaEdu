@@ -13,13 +13,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/admin")
 @PreAuthorize("hasAuthority('ADMIN')") // Somente Admin pode acessar
-public class AdminController {
+public class AdministradorController {
 
     private final AlunoRepository alunoRepository;
     private final ProfessorRepository professorRepository;
     private final AdminRepository adminRepository;
 
-    public AdminController(AlunoRepository alunoRepository, 
+    public AdministradorController(AlunoRepository alunoRepository, 
                            ProfessorRepository professorRepository, 
                            AdminRepository adminRepository) {
         this.alunoRepository = alunoRepository;
@@ -27,12 +27,12 @@ public class AdminController {
         this.adminRepository = adminRepository;
     }
 
-    @PostMapping("/")
+    @PostMapping
     public Admin criarAdmin(@RequestBody Admin admin) {
         return adminRepository.save(admin);
     }
 
-    @GetMapping("/")
+    @GetMapping
     public List<Admin> listarAdmins() {
         return adminRepository.findAll();
     }
@@ -55,5 +55,23 @@ public class AdminController {
         }
         return "Professor não encontrado!";
     }
+    @PutMapping("/{id}")
+    public Admin atualizarAdmin(@PathVariable Long id, @RequestBody Admin adminAtualizado) {
+        return adminRepository.findById(id).map(admin -> {
+            admin.setEmail(adminAtualizado.getEmail());
+            admin.setSenha(adminAtualizado.getSenha()); // Lembre-se de aplicar hash na senha antes de salvar
+            return adminRepository.save(admin);
+        }).orElseThrow(() -> new RuntimeException("Administrador não encontrado!"));
+    }
+    @DeleteMapping("/{id}")
+    public String excluirAdmin(@PathVariable Long id) {
+        if (adminRepository.existsById(id)) {
+            adminRepository.deleteById(id);
+            return "Administrador excluído com sucesso!";
+        }
+        return "Administrador não encontrado!";
+    }
+
+
 }
 

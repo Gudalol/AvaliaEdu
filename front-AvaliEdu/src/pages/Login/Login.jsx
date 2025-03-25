@@ -35,11 +35,11 @@ const Login = () => {
       localStorage.setItem("token", data.token); // <-- Armazene o token aqui
   
       if (data.role === "ADMIN") {
-        navigate("/home");
+        navigate("/Administradores");
       } else if (data.role === "TEACHER") {
         navigate("/professores");
       } else {
-        navigate("/alunos");
+        navigate("/home");
       }
     } catch (error) {
       console.error("Erro no login:", error);

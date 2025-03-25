@@ -10,8 +10,6 @@ import alunosIcon from "@img/alunos_Icone.png";
 import disciplinasIcon from "@img/disciplinas_Icone.png";
 import avaliacoesIcon from "@img/avaliacoes_Icone.png"; 
 import professoresIcon from "@img/professores_Icone.png";
-import notificacaoIcone from "@img/notificacao-Icone.png";
-import configuracoesIcone from "@img/configuracoes-Icone.png";
 import usuarioIcone from "@img/usuario-Icone.png";
 
 // eslint-disable-next-line react/prop-types
@@ -57,6 +55,11 @@ const MenuItem = ({ to, icon, label }) => {
 };
 
 const Menu = () => {
+  // Função para redirecionar para a página de admin
+  const redirecionarParaAdministradores = () => {
+    window.location.href = "/Administradores"; // URL da página de administração
+  };
+
   return (
     <div
       style={{
@@ -94,8 +97,8 @@ const Menu = () => {
         <MenuItem to="/disciplinas" icon={disciplinasIcon} label={"DISCIPLINAS"} />
         <MenuItem to="/avaliacoes" icon={avaliacoesIcon} label={"AVALIAÇÕES"} />
         <MenuItem to="/professores" icon={professoresIcon} label={"PROFESSORES"} />
-
       </Box>
+
       <Box
         sx={{
           width: 174,
@@ -106,19 +109,10 @@ const Menu = () => {
         }}
       >
         <img
-          style={{ width: 40, height: 40 }}
-          src={configuracoesIcone}
-          alt="Ícone para configurações"
-        />
-        <img
-          style={{ width: 40, height: 40 }}
-          src={notificacaoIcone}
-          alt="Ícone para notificações"
-        />
-        <img
-          style={{ width: 40, height: 40 }}
+          style={{ width: 70, height: 70, cursor: "pointer" }}
           src={usuarioIcone}
           alt="Ícone para usuário"
+          onClick={redirecionarParaAdministradores}
         />
       </Box>
     </div>

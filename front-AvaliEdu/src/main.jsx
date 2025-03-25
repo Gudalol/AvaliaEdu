@@ -22,6 +22,7 @@ import { Avaliacoes } from "@pages/Avaliacoes";
 import { Project } from "@pages/Project";
 import { Alunos } from "@pages/Alunos";
 import { Professores } from "@pages/Professores";
+import { Administradores } from "@pages/Administradores";
 
 import PrivateRoute from "@comp/Route/PrivateRoute.jsx";
 import Unauthorized from "@comp/Route/Unauthorized.jsx";
@@ -55,6 +56,10 @@ const router = createBrowserRouter([
   {
     path: "/professores",
     element: <PrivateRoute allowedRoles={["TEACHER", "ADMIN"]}><Professores /></PrivateRoute>,
+  },
+  {
+    path: "/Administradores",
+    element: <PrivateRoute allowedRoles={["ADMIN"]}><Administradores /></PrivateRoute>,
   },
   {
     path: "/unauthorized",

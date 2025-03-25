@@ -1,4 +1,3 @@
-// services/index.js
 import axiosInstance from "./axiosConfig";
 
 export const alunoService = {
@@ -27,3 +26,11 @@ export const avaliacaoService = {
   create: (avaliacao) => axiosInstance.post("/avaliacoes", avaliacao),
   delete: (id) => axiosInstance.delete(`/avaliacoes/${id}`)
 };
+
+export const administradorService = {
+  getAll: (token) => axiosInstance.get("/admin", { headers: { Authorization: `Bearer ${token}` } }),
+  create: (administrador, token) => axiosInstance.post("/admin", administrador, { headers: { Authorization: `Bearer ${token}` } }),
+  update: (id, administrador, token) => axiosInstance.put(`/admin/${id}`, administrador, { headers: { Authorization: `Bearer ${token}` } }),
+  delete: (id, token) => axiosInstance.delete(`/admin/${id}`, { headers: { Authorization: `Bearer ${token}` } })
+};
+
