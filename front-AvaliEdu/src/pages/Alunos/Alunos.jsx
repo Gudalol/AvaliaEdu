@@ -37,10 +37,14 @@ const Alunos = () => {
   const [novoAluno, setNovoAluno] = useState({ nome: "", email: "", idade: "", senha: "" });
   const [alunoEditando, setAlunoEditando] = useState(null);
 
+  // Função para obter o token armazenado no localStorage
+  const getAuthToken = () => localStorage.getItem("token");
+
   useEffect(() => {
     const carregarAlunos = async () => {
       try {
-        const response = await alunoService.getAll();
+        const token = getAuthToken();
+        const response = await alunoService.getAll(token);  // Passando o token para o serviço
         const alunosData = extractArray(response.data);
         console.log("Alunos carregados:", alunosData);
         setAlunos(alunosData);
@@ -62,7 +66,8 @@ const Alunos = () => {
     const confirmar = window.confirm("Tem certeza que deseja excluir este aluno?");
     if (!confirmar) return;
     try {
-      await alunoService.delete(id);
+      const token = getAuthToken();
+      await alunoService.delete(id, token);  // Passando o token para o serviço
       console.log("Aluno excluído, id:", id);
       setAlunos(alunos.filter((a) => a.id !== id));
     } catch (error) {
@@ -77,9 +82,10 @@ const Alunos = () => {
     }
     try {
       const alunoFormatado = { ...novoAluno, idade: parseInt(novoAluno.idade, 10) };
-      await alunoService.create(alunoFormatado);
+      const token = getAuthToken();
+      await alunoService.create(alunoFormatado, token);  // Passando o token para o serviço
       console.log("Aluno criado com sucesso! Recarregando lista...");
-      const response = await alunoService.getAll();
+      const response = await alunoService.getAll(token);  // Passando o token para o serviço
       setAlunos(extractArray(response.data));
       setIsModalOpen(false);
       setNovoAluno({ nome: "", email: "", idade: "", senha: "" });
@@ -112,9 +118,10 @@ const Alunos = () => {
     }
     try {
       console.log("Salvando edição do aluno:", alunoEditando);
-      await alunoService.update(alunoEditando.id, alunoEditando);
+      const token = getAuthToken();
+      await alunoService.update(alunoEditando.id, alunoEditando, token);  // Passando o token para o serviço
       console.log("Aluno atualizado com sucesso! Recarregando lista...");
-      const response = await alunoService.getAll();
+      const response = await alunoService.getAll(token);  // Passando o token para o serviço
       setAlunos(extractArray(response.data));
       setAlunoEditando(null);
     } catch (error) {

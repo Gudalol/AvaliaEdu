@@ -1,7 +1,9 @@
+/* eslint-disable no-unused-vars */
 import { useController } from "react-hook-form";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 
+// eslint-disable-next-line react/prop-types
 const AutocompleteRHF = ({ defaultProps, control, name, rules, ...rest }) => {
   const {
     field: { onChange, value, ref },

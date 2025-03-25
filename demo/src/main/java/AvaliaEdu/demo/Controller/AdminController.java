@@ -27,12 +27,12 @@ public class AdminController {
         this.adminRepository = adminRepository;
     }
 
-    @PostMapping("/novo-admin")
+    @PostMapping("/")
     public Admin criarAdmin(@RequestBody Admin admin) {
         return adminRepository.save(admin);
     }
 
-    @GetMapping("/admins")
+    @GetMapping("/")
     public List<Admin> listarAdmins() {
         return adminRepository.findAll();
     }

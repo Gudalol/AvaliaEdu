@@ -23,28 +23,30 @@ const Login = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: username, senha: password })
       });
-
+  
       if (!response.ok) {
         throw new Error("Credenciais inválidas");
       }
-
+  
       const data = await response.json();
       console.log("Usuário autenticado:", data.user, "Role:", data.role);
+      // Armazena a role e o token
       localStorage.setItem("userRole", data.role);
-
+      localStorage.setItem("token", data.token); // <-- Armazene o token aqui
+  
       if (data.role === "ADMIN") {
         navigate("/home");
       } else if (data.role === "TEACHER") {
-        navigate("/professor");
+        navigate("/professores");
       } else {
-        navigate("/aluno");
+        navigate("/alunos");
       }
     } catch (error) {
       console.error("Erro no login:", error);
       setOpenSnackbar(true);
     }
   };
-
+  
   const handleCloseSnackbar = () => {
     setOpenSnackbar(false);
   };
