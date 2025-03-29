@@ -33,6 +33,8 @@ const Login = () => {
       // Armazena a role e o token
       localStorage.setItem("userRole", data.role);
       localStorage.setItem("token", data.token); // <-- Armazene o token aqui
+      localStorage.setItem("userEmail", data.user); // data.user contém o email do usuário autenticado
+
   
       if (data.role === "ADMIN") {
         navigate("/Administradores");
@@ -41,6 +43,7 @@ const Login = () => {
       } else {
         navigate("/home");
       }
+      window.location.reload();
     } catch (error) {
       console.error("Erro no login:", error);
       setOpenSnackbar(true);

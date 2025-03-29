@@ -21,6 +21,10 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import PermissionButton from "@comp/PermissionButton";
+
+const userRole = localStorage.getItem("userRole"); // "TEACHER", "ADMIN", ou "USER"
+const loggedProfessorEmail = localStorage.getItem("userEmail"); // Email do professor logado
 
 const Professores = () => {
   const [professores, setProfessores] = useState([]);
@@ -47,17 +51,14 @@ const Professores = () => {
   }, []);
 
   const handleSubmit = async () => {
-    // Validação dos campos
     if (!novoProfessor.nome || !novoProfessor.email) {
       alert("Preencha todos os campos!");
       return;
     }
-
     try {
       const professorFormatado = { ...novoProfessor };
       await professorService.create(professorFormatado);
       console.log("Professor criado com sucesso! Recarregando lista...");
-      // Recarrega a lista para obter o professor com ID
       const response = await professorService.getAll();
       setProfessores(response.data);
       setIsModalOpen(false);
@@ -74,10 +75,8 @@ const Professores = () => {
       alert("Este professor não possui um ID válido e não pode ser excluído.");
       return;
     }
-
     const confirmar = window.confirm("Tem certeza que deseja excluir este professor?");
     if (!confirmar) return;
-
     try {
       await professorService.delete(id);
       setProfessores(professores.filter(p => p.id !== id));
@@ -94,7 +93,12 @@ const Professores = () => {
       alert("Este professor não possui um ID válido e não pode ser editado.");
       return;
     }
-    setProfessorEditando({ ...professor }); // Cria uma cópia para evitar problemas de referência
+    // Se o usuário for TEACHER, permitir edição apenas se o email corresponder
+    if (userRole === "TEACHER" && professor.email !== loggedProfessorEmail) {
+      alert("Você só pode editar seu próprio perfil!");
+      return;
+    }
+    setProfessorEditando({ ...professor });
     setIsEditModalOpen(true);
   };
 
@@ -104,18 +108,15 @@ const Professores = () => {
       alert("Erro: Nenhum professor selecionado para edição.");
       return;
     }
-
     if (!professorEditando.id) {
       console.error("Erro: ID do professor não está definido.", professorEditando);
       alert("Erro: ID do professor não está definido.");
       return;
     }
-
     try {
       console.log("Salvando edição do professor:", professorEditando);
       await professorService.update(professorEditando.id, professorEditando);
       console.log("Professor atualizado com sucesso! Recarregando lista...");
-      // Recarrega a lista para garantir que os dados estão atualizados
       const response = await professorService.getAll();
       setProfessores(response.data);
       setIsEditModalOpen(false);
@@ -142,17 +143,16 @@ const Professores = () => {
         />
       </Grid>
 
-      <Grid item xs={12} textAlign="right" p={3}>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={() => setIsModalOpen(true)}
-          sx={{ backgroundColor: "#09b800" }}
-        >
-          Novo Professor
-        </Button>
-      </Grid>
+      {/* Botão "Novo Professor" aparece somente para ADMIN */}
+      {userRole === "ADMIN" && (
+        <Grid item xs={12} textAlign="right" p={3}>
+          <PermissionButton userRole={userRole} allowedRoles={["ADMIN"]} onClick={() => setIsModalOpen(true)}>
+            <Button variant="contained" color="primary" startIcon={<AddIcon />} sx={{ backgroundColor: "#09b800" }}>
+              Novo Professor
+            </Button>
+          </PermissionButton>
+        </Grid>
+      )}
 
       {isLoading ? (
         <Grid item xs={10} textAlign="center">
@@ -166,96 +166,140 @@ const Professores = () => {
                 <TableRow>
                   <TableCell>Nome</TableCell>
                   <TableCell>Email</TableCell>
-                  <TableCell>Ações</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {professores
-                  .filter(professor =>
-                    professor.email.toLowerCase().includes(filtroEmail.toLowerCase())
-                  )
-                  .map((professor, index) => {
-                    const hasValidId = Boolean(professor.id);
-                    return (
+                  {/* Exibir a coluna "Ações" somente para ADMIN ou para TEACHER que pode editar seu próprio perfil */}
+                  {userRole === "ADMIN" || userRole === "TEACHER" ? <TableCell>Ações</TableCell> : null}
+                  </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {professores
+                    .filter(professor =>
+                      professor.email.toLowerCase().includes(filtroEmail.toLowerCase())
+                    )
+                    .map((professor, index) => (
                       <TableRow key={professor.id || `professor-${index}-${professor.email}`}>
-                        <TableCell>{professor.nome}</TableCell>
-                        <TableCell>{professor.email}</TableCell>
-                        <TableCell>
-                          <Button 
-                            onClick={() => handleAbrirEdicao(professor)}
-                            sx={{ backgroundColor: "#09b800", color: "#fff", minWidth: "40px", p: "5px", mr: 1 }}
-                            disabled={!hasValidId}
+                      <TableCell>{professor.nome}</TableCell>
+                      <TableCell>{professor.email}</TableCell>
+                      <TableCell>
+                        {/* Se for ADMIN, mostrar editar e excluir */}
+                        {userRole === "ADMIN" && (
+                        <>
+                          <PermissionButton userRole={userRole} allowedRoles={["ADMIN"]} onClick={() => handleAbrirEdicao(professor)}>
+                          <Button
+                            sx={{
+                            backgroundColor: "#09b800",
+                            color: "#fff", 
+                            minWidth: "40px",
+                            p: "5px",
+                            mr: 1,
+                            "&:hover": {
+                              backgroundColor: "#fff",
+                              color: "#09b800"
+                            }
+                            }}
                           >
-                            <EditIcon sx={{ color: "#fff" }} />
+                            <EditIcon sx={{ color: "inherit" }} />
                           </Button>
-                          <Button 
-                            onClick={() => handleExcluirProfessor(professor.id)}
-                            sx={{ backgroundColor: "#ff0000", color: "#fff", minWidth: "40px", p: "5px" }}
-                            disabled={!hasValidId}
+                          </PermissionButton>
+                          <PermissionButton userRole={userRole} allowedRoles={["ADMIN"]} onClick={() => handleExcluirProfessor(professor.id)}>
+                          <Button
+                            sx={{
+                            backgroundColor: "#ff0000",
+                            color: "#fff",
+                            minWidth: "40px", 
+                            p: "5px",
+                            "&:hover": {
+                              backgroundColor: "#fff",
+                              color: "#ff0000"
+                            }
+                            }}
                           >
-                            <DeleteIcon sx={{ color: "#fff" }} />
+                            <DeleteIcon sx={{ color: "inherit" }} />
                           </Button>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Grid>
-      )}
+                          </PermissionButton>
+                        </>
+                        )}
 
-      {/* Modal para criar novo professor */}
-        <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)}>
-          <Box
-            sx={{
-          position: "absolute",
-          top: "50%",
-          left: "50%", 
-          transform: "translate(-50%, -50%)",
-          width: 400,
-          bgcolor: "background.paper",
-          boxShadow: 24,
-          p: 4
-            }}
+                        {/* Se for TEACHER e for o próprio professor logado, mostrar editar */}
+                        {userRole === "TEACHER" && professor.email === loggedProfessorEmail && (
+                        <PermissionButton userRole={userRole} allowedRoles={["TEACHER"]} onClick={() => handleAbrirEdicao(professor)}>
+                          <Button
+                          sx={{
+                            backgroundColor: "#09b800",
+                            color: "#fff",
+                            minWidth: "40px",
+                            p: "5px",
+                            "&:hover": {
+                            backgroundColor: "#fff",
+                            color: "#09b800"
+                            }
+                          }}
+                          >
+                          <EditIcon sx={{ color: "inherit" }} />
+                          </Button>
+                        </PermissionButton>
+                        )}
+                      </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                </TableContainer>
+              </Grid>
+              )}
+
+              {/* Modal para criar novo professor */}
+      <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4
+          }}
+        >
+          <Typography variant="h6" mb={2}>Novo Professor</Typography>
+          <TextField
+            label="Nome"
+            fullWidth
+            margin="normal"
+            value={novoProfessor.nome}
+            onChange={(e) => setNovoProfessor({ ...novoProfessor, nome: e.target.value })}
+          />
+          <TextField
+            label="Email"
+            fullWidth
+            margin="normal"
+            value={novoProfessor.email}
+            onChange={(e) => setNovoProfessor({ ...novoProfessor, email: e.target.value })}
+          />
+          <Button
+            variant="contained"
+            sx={{ mt: 2, backgroundColor: "#09b800" }}
+            onClick={handleSubmit}
           >
-            <Typography variant="h6" mb={2}>Novo Professor</Typography>
-            <TextField
-          label="Nome"
-          fullWidth
-          margin="normal"
-          value={novoProfessor.nome}
-          onChange={(e) => setNovoProfessor({ ...novoProfessor, nome: e.target.value })}
-            />
-            <TextField
-          label="Email" 
-          fullWidth
-          margin="normal"
-          value={novoProfessor.email}
-          onChange={(e) => setNovoProfessor({ ...novoProfessor, email: e.target.value })}
-            />
-            <Button
-          variant="contained"
-          sx={{ mt: 2, backgroundColor: "#09b800" }}
-          onClick={handleSubmit}
-            >
-          Salvar
-            </Button>
-          </Box>
-        </Modal>
-        
-        {/* Modal para editar professor */}
+            Salvar
+          </Button>
+        </Box>
+      </Modal>
+
+      {/* Modal para editar professor */}
       <Modal open={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
-        <Box sx={{ 
-          position: 'absolute', 
-          top: '50%', 
-          left: '50%', 
-          transform: 'translate(-50%, -50%)', 
-          width: 400,
-          bgcolor: 'background.paper',
-          boxShadow: 24,
-          p: 4 
-        }}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4
+          }}
+        >
           <Typography variant="h6" mb={2}>Editar Professor</Typography>
           <TextField
             label="Nome"

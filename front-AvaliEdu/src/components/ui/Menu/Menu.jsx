@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-unused-vars
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -55,9 +55,17 @@ const MenuItem = ({ to, icon, label }) => {
 };
 
 const Menu = () => {
-  // Função para redirecionar para a página de admin
+  const [userRole, setUserRole] = useState(null);
+
+  useEffect(() => {
+    // Obtém a role do usuário do localStorage (assumindo que foi salva após login)
+    const role = localStorage.getItem("userRole"); // "TEACHER", "STUDENT", "ADMIN"
+    setUserRole(role);
+  }, []);
+
+  // Função para redirecionar para administradores
   const redirecionarParaAdministradores = () => {
-    window.location.href = "/Administradores"; // URL da página de administração
+    window.location.href = "/Administradores";
   };
 
   return (
@@ -92,11 +100,35 @@ const Menu = () => {
           display: "inline-flex",
         }}
       >
-        <MenuItem to="/home" icon={HomeIcon} label={"HOME"} />
-        <MenuItem to="/alunos" icon={alunosIcon} label={"ALUNOS"} />
-        <MenuItem to="/disciplinas" icon={disciplinasIcon} label={"DISCIPLINAS"} />
-        <MenuItem to="/avaliacoes" icon={avaliacoesIcon} label={"AVALIAÇÕES"} />
-        <MenuItem to="/professores" icon={professoresIcon} label={"PROFESSORES"} />
+        {/* Se for TEACHER */}
+        {userRole === "TEACHER" && (
+          <>
+            <MenuItem to="/home" icon={HomeIcon} label={"HOME"} />
+            <MenuItem to="/avaliacoes" icon={avaliacoesIcon} label={"AVALIAÇÕES"} />
+            <MenuItem to="/professores" icon={professoresIcon} label={"PROFESSORES"} />
+          </>
+        )}
+
+        {/* Se for ADMIN */}
+        {userRole === "ADMIN" && (
+          <>
+            <MenuItem to="/home" icon={HomeIcon} label={"HOME"} />
+            <MenuItem to="/alunos" icon={alunosIcon} label={"ALUNOS"} />
+            <MenuItem to="/disciplinas" icon={disciplinasIcon} label={"DISCIPLINAS"} />
+            <MenuItem to="/avaliacoes" icon={avaliacoesIcon} label={"AVALIAÇÕES"} />
+            <MenuItem to="/professores" icon={professoresIcon} label={"PROFESSORES"} />
+          </>
+        )}
+
+        {/* Se não for TEACHER nem ADMIN, assume que é ALUNO */}
+        {userRole === "USER" && (
+          <>
+            <MenuItem to="/home" icon={HomeIcon} label={"HOME"} />
+            <MenuItem to="/alunos" icon={alunosIcon} label={"ALUNOS"} />
+            <MenuItem to="/disciplinas" icon={disciplinasIcon} label={"DISCIPLINAS"} />
+            <MenuItem to="/avaliacoes" icon={avaliacoesIcon} label={"AVALIAÇÕES"} />
+          </>
+        )}
       </Box>
 
       <Box

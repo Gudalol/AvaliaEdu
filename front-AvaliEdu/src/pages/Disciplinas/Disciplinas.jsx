@@ -38,6 +38,9 @@ const Disciplinas = () => {
   const [filtroNome, setFiltroNome] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
+  // Obtém a role do usuário do localStorage (por exemplo, "ADMIN", "TEACHER", "USER")
+  const userRole = localStorage.getItem("userRole");
+
   useEffect(() => {
     const carregarDisciplinas = async () => {
       try {
@@ -141,16 +144,19 @@ const Disciplinas = () => {
         />
       </Grid>
 
-      <Grid item xs={10} textAlign="right" p={3}>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setIsModalOpen(true)}
-          sx={{ backgroundColor: '#09b800', color: '#fff' }}
-        >
-          Nova Disciplina
-        </Button>
-      </Grid>
+      {/* Apenas ADMIN pode ver o botão "Nova Disciplina" */}
+      {userRole === "ADMIN" && (
+        <Grid item xs={10} textAlign="right" p={3}>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setIsModalOpen(true)}
+            sx={{ backgroundColor: '#09b800', color: '#fff' }}
+          >
+            Nova Disciplina
+          </Button>
+        </Grid>
+      )}
 
       {isLoading ? (
         <CircularProgress />
@@ -164,7 +170,8 @@ const Disciplinas = () => {
                 <TableRow>
                   <TableCell>ID</TableCell>
                   <TableCell>Nome</TableCell>
-                  <TableCell>Ações</TableCell>
+                  {/* Apenas ADMIN pode ver a coluna "Ações" */}
+                  {userRole === "ADMIN" && <TableCell>Ações</TableCell>}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -174,20 +181,41 @@ const Disciplinas = () => {
                     <TableRow key={disciplina.id}>
                       <TableCell>{disciplina.id}</TableCell>
                       <TableCell>{disciplina.nome}</TableCell>
-                      <TableCell>
-                        <Button 
-                          onClick={() => handleAbrirEdicao(disciplina)}
-                          sx={{ backgroundColor: "#09b800", color: "#fff", minWidth: "40px", p: "5px", mr: 1 }}
-                        >
-                          <EditIcon sx={{ color: "#fff" }} />
-                        </Button>
-                        <Button 
-                          onClick={() => handleExcluirDisciplina(disciplina.id)}
-                          sx={{ backgroundColor: "#ff0000", color: "#fff", minWidth: "40px", p: "5px" }}
-                        >
-                          <DeleteIcon sx={{ color: "#fff" }} />
-                        </Button>
-                      </TableCell>
+                      {userRole === "ADMIN" && (
+                        <TableCell>
+                          <Button
+                            onClick={() => handleAbrirEdicao(disciplina)}
+                            sx={{ 
+                              backgroundColor: "#09b800", 
+                              color: "#fff", 
+                              minWidth: "40px", 
+                              p: "5px", 
+                              mr: 1,
+                              '&:hover': {
+                                backgroundColor: "#fff",
+                                color: "#09b800"
+                              }
+                            }}
+                          >
+                            <EditIcon sx={{ color: "inherit" }} />
+                          </Button>
+                          <Button
+                            onClick={() => handleExcluirDisciplina(disciplina.id)}
+                            sx={{ 
+                              backgroundColor: "#ff0000", 
+                              color: "#fff", 
+                              minWidth: "40px", 
+                              p: "5px",
+                              '&:hover': {
+                                backgroundColor: "#fff",
+                                color: "#ff0000"
+                              }
+                            }}
+                          >
+                            <DeleteIcon sx={{ color: "inherit" }} />
+                          </Button>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
               </TableBody>

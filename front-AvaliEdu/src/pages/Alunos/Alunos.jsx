@@ -37,14 +37,16 @@ const Alunos = () => {
   const [novoAluno, setNovoAluno] = useState({ nome: "", email: "", idade: "", senha: "" });
   const [alunoEditando, setAlunoEditando] = useState(null);
 
-  // Função para obter o token armazenado no localStorage
+  // Obtém o token, a role e o email do usuário logado
   const getAuthToken = () => localStorage.getItem("token");
+  const userRole = localStorage.getItem("userRole"); // "USER", "TEACHER", "ADMIN"
+  const loggedUserEmail = localStorage.getItem("userEmail"); // Email do aluno logado
 
   useEffect(() => {
     const carregarAlunos = async () => {
       try {
         const token = getAuthToken();
-        const response = await alunoService.getAll(token);  // Passando o token para o serviço
+        const response = await alunoService.getAll(token); // Passando o token para o serviço
         const alunosData = extractArray(response.data);
         console.log("Alunos carregados:", alunosData);
         setAlunos(alunosData);
@@ -67,7 +69,7 @@ const Alunos = () => {
     if (!confirmar) return;
     try {
       const token = getAuthToken();
-      await alunoService.delete(id, token);  // Passando o token para o serviço
+      await alunoService.delete(id, token); // Passando o token para o serviço
       console.log("Aluno excluído, id:", id);
       setAlunos(alunos.filter((a) => a.id !== id));
     } catch (error) {
@@ -83,9 +85,9 @@ const Alunos = () => {
     try {
       const alunoFormatado = { ...novoAluno, idade: parseInt(novoAluno.idade, 10) };
       const token = getAuthToken();
-      await alunoService.create(alunoFormatado, token);  // Passando o token para o serviço
+      await alunoService.create(alunoFormatado, token); // Passando o token para o serviço
       console.log("Aluno criado com sucesso! Recarregando lista...");
-      const response = await alunoService.getAll(token);  // Passando o token para o serviço
+      const response = await alunoService.getAll(token); // Passando o token para o serviço
       setAlunos(extractArray(response.data));
       setIsModalOpen(false);
       setNovoAluno({ nome: "", email: "", idade: "", senha: "" });
@@ -100,6 +102,11 @@ const Alunos = () => {
     if (!aluno.id) {
       console.error("Aluno sem ID:", aluno);
       alert("Este aluno não possui um ID válido e não pode ser editado.");
+      return;
+    }
+    // Se o usuário logado for USER, permitir edição apenas se o aluno for o próprio usuário
+    if (userRole === "USER" && aluno.email.toLowerCase() !== loggedUserEmail?.toLowerCase()) {
+      alert("Você só pode editar seu próprio perfil!");
       return;
     }
     setAlunoEditando({ ...aluno });
@@ -119,9 +126,9 @@ const Alunos = () => {
     try {
       console.log("Salvando edição do aluno:", alunoEditando);
       const token = getAuthToken();
-      await alunoService.update(alunoEditando.id, alunoEditando, token);  // Passando o token para o serviço
+      await alunoService.update(alunoEditando.id, alunoEditando, token); // Passando o token para o serviço
       console.log("Aluno atualizado com sucesso! Recarregando lista...");
-      const response = await alunoService.getAll(token);  // Passando o token para o serviço
+      const response = await alunoService.getAll(token); // Passando o token para o serviço
       setAlunos(extractArray(response.data));
       setAlunoEditando(null);
     } catch (error) {
@@ -146,16 +153,19 @@ const Alunos = () => {
         />
       </Grid>
 
-      <Grid item xs={10} textAlign="right">
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setIsModalOpen(true)}
-          sx={{ backgroundColor: "#09b800", color: "#fff" }}
-        >
-          Novo Aluno
-        </Button>
-      </Grid>
+      {/* Permite que apenas ADMIN veja o botão "Novo Aluno" */}
+      {userRole === "ADMIN" && (
+        <Grid item xs={10} textAlign="right">
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setIsModalOpen(true)}
+            sx={{ backgroundColor: "#09b800", color: "#fff" }}
+          >
+            Novo Aluno
+          </Button>
+        </Grid>
+      )}
 
       {isLoading ? (
         <Grid item xs={10} textAlign="center">
@@ -175,7 +185,8 @@ const Alunos = () => {
                   <TableCell>Email</TableCell>
                   <TableCell>Idade</TableCell>
                   <TableCell>Senha</TableCell>
-                  <TableCell>Ações</TableCell>
+                  {/* Exibe a coluna "Ações" se o usuário for ADMIN ou se for USER (mas apenas para seu próprio registro) */}
+                  {(userRole === "ADMIN" || userRole === "USER") && <TableCell>Ações</TableCell>}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -189,20 +200,83 @@ const Alunos = () => {
                       <TableCell>{aluno.email}</TableCell>
                       <TableCell>{aluno.idade}</TableCell>
                       <TableCell>{aluno.senha}</TableCell>
-                      <TableCell>
-                        <Button
-                          onClick={() => handleAbrirEdicao(aluno)}
-                          sx={{ backgroundColor: "#09b800", color: "#fff", minWidth: "40px", p: "5px", mr: 1 }}
-                        >
-                          <EditIcon sx={{ color: "#fff" }} />
-                        </Button>
-                        <Button
-                          onClick={() => handleExcluirAluno(aluno.id)}
-                          sx={{ backgroundColor: "#ff0000", color: "#fff", minWidth: "40px", p: "5px" }}
-                        >
-                          <DeleteIcon sx={{ color: "#fff" }} />
-                        </Button>
-                      </TableCell>
+                      {(userRole === "ADMIN" || userRole === "USER") && (
+                        <TableCell>
+                          {/* Se o usuário for ADMIN, mostrar sempre os botões */}
+                          {userRole === "ADMIN" && (
+                            <>
+                              <Button
+                                onClick={() => handleAbrirEdicao(aluno)}
+                                sx={{
+                                  backgroundColor: "#09b800",
+                                  color: "#fff",
+                                  minWidth: "40px",
+                                  p: "5px",
+                                  mr: 1,
+                                  "&:hover": {
+                                    backgroundColor: "#fff",
+                                    color: "#09b800"
+                                  }
+                                }}
+                              >
+                                <EditIcon sx={{ color: "inherit" }} />
+                              </Button>
+                              <Button
+                                onClick={() => handleExcluirAluno(aluno.id)}
+                                sx={{
+                                  backgroundColor: "#ff0000",
+                                  color: "#fff",
+                                  minWidth: "40px",
+                                  p: "5px",
+                                  "&:hover": {
+                                    backgroundColor: "#fff",
+                                    color: "#ff0000"
+                                  }
+                                }}
+                              >
+                                <DeleteIcon sx={{ color: "inherit" }} />
+                              </Button>
+                            </>
+                          )}
+                          {/* Se o usuário for USER, mostrar botões apenas se o registro for o dele */}
+                          {userRole === "USER" &&
+                            aluno.email.toLowerCase() === loggedUserEmail?.toLowerCase() && (
+                              <>
+                                <Button
+                                  onClick={() => handleAbrirEdicao(aluno)}
+                                  sx={{
+                                    backgroundColor: "#09b800",
+                                    color: "#fff",
+                                    minWidth: "40px",
+                                    p: "5px",
+                                    mr: 1,
+                                    "&:hover": {
+                                      backgroundColor: "#fff",
+                                      color: "#09b800"
+                                    }
+                                  }}
+                                >
+                                  <EditIcon sx={{ color: "inherit" }} />
+                                </Button>
+                                <Button
+                                  onClick={() => handleExcluirAluno(aluno.id)}
+                                  sx={{
+                                    backgroundColor: "#ff0000",
+                                    color: "#fff",
+                                    minWidth: "40px",
+                                    p: "5px",
+                                    "&:hover": {
+                                      backgroundColor: "#fff",
+                                      color: "#ff0000"
+                                    }
+                                  }}
+                                >
+                                  <DeleteIcon sx={{ color: "inherit" }} />
+                                </Button>
+                              </>
+                            )}
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
               </TableBody>

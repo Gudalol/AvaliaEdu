@@ -151,61 +151,86 @@ const Administradores = () => {
           variant="contained"
           startIcon={<AddIcon />}
           onClick={() => setIsModalOpen(true)}
-          sx={{ backgroundColor: "#FFC107", color: "#fff" }} // Cor amarela
-        >
-          Novo Administrador
-        </Button>
-      </Grid>
+           // Cor amarela
+            >
+              Novo Administrador
+            </Button>
+                </Grid>
 
-      {isLoading ? (
-        <Grid item xs={10} textAlign="center">
-          <CircularProgress />
-        </Grid>
-      ) : administradores.length === 0 ? (
-        <Grid item xs={10} textAlign="center">
-          <Typography variant="h5">Nenhum administrador cadastrado</Typography>
-        </Grid>
-      ) : (
-        <Grid item xs={10}>
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Email</TableCell>
-                  <TableCell>Ações</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {administradores
-                  .filter((administrador) =>
-                    administrador.email.toLowerCase().includes(filtroEmail.toLowerCase())
-                  )
-                  .map((administrador, index) => (
-                    <TableRow key={administrador.id || `administrador-${index}-${administrador.email}`}>
-                      <TableCell>{administrador.email}</TableCell>
-                      <TableCell>
-                        <Button
-                          onClick={() => handleAbrirEdicao(administrador)}
-                          sx={{ backgroundColor: "#09b800", color: "#fff", minWidth: "40px", p: "5px", mr: 1 }}
-                        >
-                          <EditIcon sx={{ color: "#fff" }} />
-                        </Button>
-                        <Button
-                          onClick={() => handleExcluirAdministrador(administrador.id)}
-                          sx={{ backgroundColor: "#ff0000", color: "#fff", minWidth: "40px", p: "5px" }}
-                        >
-                          <DeleteIcon sx={{ color: "#fff" }} />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Grid>
-      )}
+                {isLoading ? (
+            <Grid item xs={10} textAlign="center">
+              <CircularProgress />
+            </Grid>
+                ) : administradores.length === 0 ? (
+            <Grid item xs={10} textAlign="center">
+              <Typography variant="h5">Nenhum administrador cadastrado</Typography>
+            </Grid>
+                ) : (
+            <Grid item xs={10}>
+              <TableContainer component={Paper}>
+                <Table>
+                  <TableHead>
+              <TableRow>
+                <TableCell>Email</TableCell>
+                <TableCell>Ações</TableCell>
+              </TableRow>
+                  </TableHead>
+                  <TableBody>
+              {administradores
+                .filter((administrador) =>
+                  administrador.email.toLowerCase().includes(filtroEmail.toLowerCase())
+                )
+                .map((administrador, index) => (
+                  <TableRow key={administrador.id || `administrador-${index}-${administrador.email}`}>
+                    <TableCell>{administrador.email}</TableCell>
+                    <TableCell>
+                <Button
+                  onClick={() => handleAbrirEdicao(administrador)}
+                  sx={{ 
+                    backgroundColor: "#09b800", 
+                    color: "#fff", 
+                    minWidth: "40px", 
+                    p: "5px", 
+                    mr: 1,
+                    '&:hover': {
+                      backgroundColor: "#fff",
+                      color: "#09b800",
+                      '& .MuiSvgIcon-root': {
+                  color: "#09b800"
+                      }
+                    }
+                  }}
+                >
+                  <EditIcon sx={{ color: "#fff" }} />
+                </Button>
+                <Button
+                  onClick={() => handleExcluirAdministrador(administrador.id)}
+                  sx={{ 
+                    backgroundColor: "#ff0000", 
+                    color: "#fff", 
+                    minWidth: "40px", 
+                    p: "5px",
+                    '&:hover': {
+                      backgroundColor: "#fff",
+                      color: "#ff0000",
+                      '& .MuiSvgIcon-root': {
+                  color: "#ff0000"
+                      }
+                    }
+                  }}
+                >
+                  <DeleteIcon sx={{ color: "#fff" }} />
+                </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Grid>
+                )}
 
-      {/* Modal para criar novo administrador */}
+                {/* Modal para criar novo administrador */}
       <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <Box
           sx={{

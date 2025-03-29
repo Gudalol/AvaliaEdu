@@ -1,6 +1,7 @@
 // eslint-disable-next-line no-unused-vars
-import React, { useState, useEffect } from 'react';
-import { Menu } from '@ui/Menu';
+import React, { useState, useEffect } from "react";
+import { Menu } from "@ui/Menu";
+import { avaliacaoService, alunoService, professorService, disciplinaService } from "@services";
 import {
   Grid,
   Paper,
@@ -18,16 +19,12 @@ import {
   Box,
   Select,
   MenuItem
-} from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/Delete';
-import {
-  avaliacaoService,
-  alunoService,
-  professorService,
-  disciplinaService
-} from '@services';
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import PermissionButton from "@comp/PermissionButton"; 
 
+// Função auxiliar para garantir que o dado seja um array
 const extractArray = (data) => {
   if (Array.isArray(data)) return data;
   if (data && data.content && Array.isArray(data.content)) return data.content;
@@ -42,13 +39,16 @@ const Avaliacoes = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filtroAluno, setFiltroAluno] = useState("");
   const [novaAvaliacao, setNovaAvaliacao] = useState({
-    nota: '',
-    descricao: '',
-    alunoId: '',
-    professorId: '',
-    disciplinaId: ''
+    nota: "",
+    descricao: "",
+    alunoId: "",
+    professorId: "",
+    disciplinaId: ""
   });
   const [isLoading, setIsLoading] = useState(true);
+
+  // Obter a role e token do usuário
+  const userRole = localStorage.getItem("userRole"); // "TEACHER", "ADMIN", ou "USER" (aluno)
 
   useEffect(() => {
     const carregarDados = async () => {
@@ -125,11 +125,11 @@ const Avaliacoes = () => {
       setAvaliacoes(extractArray(res.data));
       setIsModalOpen(false);
       setNovaAvaliacao({
-        nota: '',
-        descricao: '',
-        alunoId: '',
-        professorId: '',
-        disciplinaId: ''
+        nota: "",
+        descricao: "",
+        alunoId: "",
+        professorId: "",
+        disciplinaId: ""
       });
     } catch (error) {
       console.error("Erro ao criar avaliação:", error.response?.data || error);
@@ -170,17 +170,16 @@ const Avaliacoes = () => {
         />
       </Grid>
 
-      <Grid item xs={10} textAlign="right" p={3}>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={() => setIsModalOpen(true)}
-          sx={{ backgroundColor: '#09b800' }}
-        >
-          Nova Avaliação
-        </Button>
-      </Grid>
+      {/* Apenas usuários com role USER podem criar nova avaliação */}
+      {userRole === "USER" && (
+        <Grid item xs={10} textAlign="right" p={3}>
+          <PermissionButton userRole={userRole} allowedRoles={["USER"]} onClick={() => setIsModalOpen(true)}>
+            <Button variant="contained" color="primary" startIcon={<AddIcon />} sx={{ backgroundColor: '#09b800' }}>
+              Nova Avaliação
+            </Button>
+          </PermissionButton>
+        </Grid>
+      )}
 
       {isLoading ? (
         <CircularProgress />
@@ -197,7 +196,8 @@ const Avaliacoes = () => {
                   <TableCell>Professor</TableCell>
                   <TableCell>Nota</TableCell>
                   <TableCell>Descrição</TableCell>
-                  <TableCell>Ações</TableCell>
+                  {/* Apenas USER e ADMIN podem ver a coluna "Ações" */}
+                  {["USER", "ADMIN"].includes(userRole) && <TableCell>Ações</TableCell>}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -212,14 +212,27 @@ const Avaliacoes = () => {
                       <TableCell>{aval.professor.nome}</TableCell>
                       <TableCell>{aval.nota}</TableCell>
                       <TableCell>{aval.descricao}</TableCell>
-                      <TableCell>
-                        <Button
-                          onClick={() => handleExcluirAvaliacao(aval.id)}
-                          sx={{ backgroundColor: "#ff0000", color: "#fff", minWidth: "40px", p: "5px" }}
-                        >
-                          <DeleteIcon sx={{ color: "#fff" }} />
-                        </Button>
-                      </TableCell>
+                      {/* Apenas USER e ADMIN podem ver o botão de exclusão */}
+                      {["USER", "ADMIN"].includes(userRole) && (
+                        <TableCell>
+                          <PermissionButton userRole={userRole} allowedRoles={["USER", "ADMIN"]} onClick={() => handleExcluirAvaliacao(aval.id)}>
+                            <Button
+                              sx={{ 
+                                backgroundColor: "#ff0000", 
+                                color: "#fff", 
+                                minWidth: "40px", 
+                                p: "5px",
+                                '&:hover': {
+                                  backgroundColor: "#fff",
+                                  color: "#ff0000"
+                                }
+                              }}
+                            >
+                              <DeleteIcon sx={{ color: "inherit" }} />
+                            </Button>
+                          </PermissionButton>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
               </TableBody>
@@ -228,6 +241,7 @@ const Avaliacoes = () => {
         </Grid>
       )}
 
+      {/* Modal para criar nova avaliação */}
       <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <Box sx={{
           position: 'absolute',
