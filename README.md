@@ -23,7 +23,7 @@ Permitir que alunos atribuam notas e deixem feedbacks sobre disciplinas, com con
 |--------------|---------------------------------|
 | Frontend     | React, Vite, Material UI, Axios |
 | Backend      | Spring Boot (Java), JWT         |
-| Banco de Dados | H2 (desenvolvimento) / MySQL (produção) |
+| Banco de Dados | Postgres |
 | Gerenciamento de Dependências | Maven                  |
 
 ## 📦 Pré-requisitos
@@ -39,7 +39,7 @@ Permitir que alunos atribuam notas e deixem feedbacks sobre disciplinas, com con
 1. Clone o repositório e acesse a pasta do backend:
    ```bash
    git clone <URL_DO_REPOSITORIO>
-   cd AvaliaEdu/backend
+   cd AvaliaEdu/demo
    ```
 2. Compile e execute com Maven:
    ```bash
@@ -52,7 +52,7 @@ Permitir que alunos atribuam notas e deixem feedbacks sobre disciplinas, com con
 
 1. Na pasta do frontend:
    ```bash
-   cd AvaliaEdu/frontend
+   cd AvaliaEdu/front-AvaliEdu
    ```
 2. Instale as dependências e inicie:
    ```bash
