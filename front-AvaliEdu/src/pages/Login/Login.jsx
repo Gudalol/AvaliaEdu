@@ -3,15 +3,15 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
-import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import planinLogo from "@img/Logo_Icone.png";
+import sideImage from "@img/sideImage.png"; // Importando a imagem
 
 const Login = () => {
-  const [username, setUsername] = useState("");
+  const [email, setemail] = useState("");
   const [password, setPassword] = useState("");
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ const Login = () => {
       const response = await fetch("http://localhost:8080/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: username, senha: password })
+        body: JSON.stringify({ email: email, senha: password })
       });
   
       if (!response.ok) {
@@ -30,19 +30,14 @@ const Login = () => {
   
       const data = await response.json();
       console.log("Usuário autenticado:", data.user, "Role:", data.role);
-      // Armazena a role e o token
       localStorage.setItem("userRole", data.role);
-      localStorage.setItem("token", data.token); // <-- Armazene o token aqui
-      localStorage.setItem("userEmail", data.user); // data.user contém o email do usuário autenticado
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("userEmail", data.user);
+      localStorage.setItem("userId", data.id);
+      localStorage.setItem("email", data.nome);
 
-  
-      if (data.role === "ADMIN") {
-        navigate("/Administradores");
-      } else if (data.role === "TEACHER") {
-        navigate("/professores");
-      } else {
-        navigate("/home");
-      }
+      navigate("/home");
+      
       window.location.reload();
     } catch (error) {
       console.error("Erro no login:", error);
@@ -57,63 +52,84 @@ const Login = () => {
   return (
     <Container
       component="main"
+      maxWidth={false} // Ocupa a tela toda
+      disableGutters
       sx={{
         display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
+        flexDirection: "row",
         height: "100vh",
+        margin: 0,
+        padding: 0
       }}
-      disableGutters
     >
+      {/* Imagem do lado esquerdo */}
       <Box
         component="img"
-        src={planinLogo}
-        alt="Logo"
-        sx={{ width: "30%", maxWidth: 200, marginBottom: 3 }}
+        src={sideImage}
+        alt="Side Image"
+        sx={{
+          width: "50vw", // ou defina um valor fixo como "600px"
+          height: "100vh",
+          objectFit: "cover",
+          display: "block"
+        }}
       />
-      
-      <Typography variant="h5" sx={{ color: "#09b800", fontWeight: "bold", textAlign: "center", mb: 3 }}>
-        Colocar alguma<br />
-        frase top aqui
-      </Typography>
-
+    
+      {/* Conteúdo do formulário de login */}
       <Box
         sx={{
-          width: "100%",
-          maxWidth: 400,
+          width: "50vw", // Ocupa o restante da tela
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
+          justifyContent: "center",
+          p: 4,
         }}
       >
-        <TextField
-          label="Username"
-          variant="outlined"
-          fullWidth
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          sx={{ mb: 2 }}
+        <Box
+          component="img"
+          src={planinLogo}
+          alt="Logo"
+          sx={{ width: "30%", maxWidth: 200, marginBottom: 3 }}
         />
-        <TextField
-          label="Password"
-          type="password"
-          variant="outlined"
-          fullWidth
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          sx={{ mb: 2 }}
-        />
-        <Button variant="contained" color="primary" fullWidth onClick={handleLogin}>
-          Login
-        </Button>
-      </Box>
 
-      <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-        <MuiAlert elevation={6} variant="filled" severity="error" onClose={handleCloseSnackbar}>
-          Incorrect credentials!
-        </MuiAlert>
-      </Snackbar>
+        <Box
+          sx={{
+            width: "100%",
+            maxWidth: 400,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <TextField
+            label="Email"
+            variant="outlined"
+            fullWidth
+            value={email}
+            onChange={(e) => setemail(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            label="Password"
+            type="password"
+            variant="outlined"
+            fullWidth
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+          <Button variant="contained" color="primary" fullWidth onClick={handleLogin}>
+            Login
+          </Button>
+        </Box>
+
+        <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+          <MuiAlert elevation={6} variant="filled" severity="error" onClose={handleCloseSnackbar}>
+            Incorrect credentials!
+          </MuiAlert>
+        </Snackbar>
+      </Box>
     </Container>
   );
 };

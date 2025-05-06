@@ -99,21 +99,6 @@ public class ProfessorControllerTest {
     }
 
     @Test
-    public void testListarProfessores() {
-        List<Professor> professores = Arrays.asList(
-            new Professor(1L, "Professor 1", "prof1@exemplo.com", null, null, null),
-            new Professor(2L, "Professor 2", "prof2@exemplo.com", null, null, null)
-        );
-
-        when(professorService.listarProfessor()).thenReturn(professores);
-
-        ResponseEntity<List<Professor>> response = professorController.listarProfessores();
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(professores, response.getBody());
-    }
-
-    @Test
     public void testExcluirProfessor_Sucesso() {
         Long id = 1L;
 

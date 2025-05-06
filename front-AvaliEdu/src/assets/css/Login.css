@@ -1,11 +1,8 @@
 /* Login.css */
-
-body {
-  display: flex;
+html, body {
   margin: 0;
-  background-color: #ffffff;
+  padding: 0;
   height: 100%;
-  width: 100%;
 }
 
 .login-container {

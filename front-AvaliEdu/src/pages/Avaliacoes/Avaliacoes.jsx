@@ -22,12 +22,11 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
-import PermissionButton from "@comp/PermissionButton"; 
+import PermissionButton from "@comp/PermissionButton";
 
-// Função auxiliar para garantir que o dado seja um array
 const extractArray = (data) => {
   if (Array.isArray(data)) return data;
-  if (data && data.content && Array.isArray(data.content)) return data.content;
+  if (data?.content && Array.isArray(data.content)) return data.content;
   return [];
 };
 
@@ -38,17 +37,19 @@ const Avaliacoes = () => {
   const [disciplinas, setDisciplinas] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filtroAluno, setFiltroAluno] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  const userRole = localStorage.getItem("userRole"); // "USER", "ADMIN", "TEACHER"
+  const userId = localStorage.getItem("userId");
+  const userName = localStorage.getItem("userName");
+
   const [novaAvaliacao, setNovaAvaliacao] = useState({
     nota: "",
     descricao: "",
-    alunoId: "",
+    alunoId: userRole === "USER" ? userId : "",
     professorId: "",
     disciplinaId: ""
   });
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Obter a role e token do usuário
-  const userRole = localStorage.getItem("userRole"); // "TEACHER", "ADMIN", ou "USER" (aluno)
 
   useEffect(() => {
     const carregarDados = async () => {
@@ -60,74 +61,54 @@ const Avaliacoes = () => {
           disciplinaService.getAll()
         ]);
 
-        const avalData = extractArray(avalRes.data);
-        const alunosData = extractArray(alunosRes.data);
-        const profData = extractArray(profRes.data);
-        const discData = extractArray(discRes.data);
-
-        console.log("Avaliações carregadas:", avalData);
-        console.log("Alunos carregados:", alunosData);
-        console.log("Professores carregados:", profData);
-        console.log("Disciplinas carregadas:", discData);
-
-        setAvaliacoes(avalData);
-        setAlunos(alunosData);
-        setProfessores(profData);
-        setDisciplinas(discData);
+        setAvaliacoes(extractArray(avalRes.data));
+        setAlunos(extractArray(alunosRes.data));
+        setProfessores(extractArray(profRes.data));
+        setDisciplinas(extractArray(discRes.data));
       } catch (error) {
         console.error("Erro ao carregar dados:", error);
       } finally {
         setIsLoading(false);
       }
     };
+
     carregarDados();
   }, []);
 
   const handleSubmit = async () => {
-    if (
-      !novaAvaliacao.nota ||
-      !novaAvaliacao.descricao ||
-      !novaAvaliacao.alunoId ||
-      !novaAvaliacao.professorId ||
-      !novaAvaliacao.disciplinaId
-    ) {
+    const { nota, descricao, alunoId, professorId, disciplinaId } = novaAvaliacao;
+
+    if (!nota || !descricao || !alunoId || !professorId || !disciplinaId) {
       alert("Preencha todos os campos!");
       return;
     }
 
-    const nota = parseFloat(novaAvaliacao.nota);
-    if (isNaN(nota)) {
+    const notaNum = parseFloat(nota);
+    if (isNaN(notaNum)) {
       alert("A nota deve ser um número válido!");
       return;
     }
 
-    const alunoId = parseInt(novaAvaliacao.alunoId, 10);
-    const professorId = parseInt(novaAvaliacao.professorId, 10);
-    const disciplinaId = parseInt(novaAvaliacao.disciplinaId, 10);
-
     const avaliacaoFormatada = {
-      nota,
-      descricao: novaAvaliacao.descricao,
-      aluno: { id: alunoId },
-      professor: { id: professorId },
-      disciplina: { id: disciplinaId }
+      nota: notaNum,
+      descricao,
+      aluno: { id: parseInt(alunoId, 10) },
+      professor: { id: parseInt(professorId, 10) },
+      disciplina: { id: parseInt(disciplinaId, 10) }
     };
 
     const confirmar = window.confirm("Tem certeza que terminou? Não será possível editar depois.");
     if (!confirmar) return;
 
-    console.log("Payload da avaliação:", JSON.stringify(avaliacaoFormatada, null, 2));
-
     try {
-      const response = await avaliacaoService.create(avaliacaoFormatada);
-      console.log("Avaliação criada com sucesso!", response.data);
+      await avaliacaoService.create(avaliacaoFormatada);
       const res = await avaliacaoService.getAll();
       setAvaliacoes(extractArray(res.data));
       setIsModalOpen(false);
       setNovaAvaliacao({
         nota: "",
         descricao: "",
-        alunoId: "",
+        alunoId: userRole === "USER" ? userId : "",
         professorId: "",
         disciplinaId: ""
       });
@@ -139,16 +120,16 @@ const Avaliacoes = () => {
 
   const handleExcluirAvaliacao = async (id) => {
     if (!id) {
-      console.error("Tentativa de excluir avaliação sem ID");
-      alert("Esta avaliação não possui um ID válido e não pode ser excluída.");
+      alert("Avaliação inválida.");
       return;
     }
-    const confirmar = window.confirm("Tem certeza que deseja excluir esta avaliação?");
+
+    const confirmar = window.confirm("Deseja excluir esta avaliação?");
     if (!confirmar) return;
+
     try {
       await avaliacaoService.delete(id);
-      console.log("Avaliação excluída, id:", id);
-      setAvaliacoes(avaliacoes.filter(a => a.id !== id));
+      setAvaliacoes(avaliacoes.filter((a) => a.id !== id));
     } catch (error) {
       console.error("Erro ao excluir avaliação:", error);
     }
@@ -170,7 +151,6 @@ const Avaliacoes = () => {
         />
       </Grid>
 
-      {/* Apenas usuários com role USER podem criar nova avaliação */}
       {userRole === "USER" && (
         <Grid item xs={10} textAlign="right" p={3}>
           <PermissionButton userRole={userRole} allowedRoles={["USER"]} onClick={() => setIsModalOpen(true)}>
@@ -196,13 +176,12 @@ const Avaliacoes = () => {
                   <TableCell>Professor</TableCell>
                   <TableCell>Nota</TableCell>
                   <TableCell>Descrição</TableCell>
-                  {/* Apenas USER e ADMIN podem ver a coluna "Ações" */}
                   {["USER", "ADMIN"].includes(userRole) && <TableCell>Ações</TableCell>}
                 </TableRow>
               </TableHead>
               <TableBody>
                 {avaliacoes
-                  .filter(aval =>
+                  .filter((aval) =>
                     aval.aluno.nome.toLowerCase().includes(filtroAluno.toLowerCase())
                   )
                   .map((aval) => (
@@ -212,15 +191,14 @@ const Avaliacoes = () => {
                       <TableCell>{aval.professor.nome}</TableCell>
                       <TableCell>{aval.nota}</TableCell>
                       <TableCell>{aval.descricao}</TableCell>
-                      {/* Apenas USER e ADMIN podem ver o botão de exclusão */}
                       {["USER", "ADMIN"].includes(userRole) && (
                         <TableCell>
                           <PermissionButton userRole={userRole} allowedRoles={["USER", "ADMIN"]} onClick={() => handleExcluirAvaliacao(aval.id)}>
                             <Button
-                              sx={{ 
-                                backgroundColor: "#ff0000", 
-                                color: "#fff", 
-                                minWidth: "40px", 
+                              sx={{
+                                backgroundColor: "#ff0000",
+                                color: "#fff",
+                                minWidth: "40px",
                                 p: "5px",
                                 '&:hover': {
                                   backgroundColor: "#fff",
@@ -241,7 +219,6 @@ const Avaliacoes = () => {
         </Grid>
       )}
 
-      {/* Modal para criar nova avaliação */}
       <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <Box sx={{
           position: 'absolute',
@@ -274,25 +251,37 @@ const Avaliacoes = () => {
             onChange={(e) => setNovaAvaliacao({ ...novaAvaliacao, descricao: e.target.value })}
           />
 
-          <Select
-            fullWidth
-            value={novaAvaliacao.alunoId}
-            onChange={(e) => setNovaAvaliacao({ ...novaAvaliacao, alunoId: e.target.value })}
-            displayEmpty
-          >
-            <MenuItem value="">Selecione o Aluno</MenuItem>
-            {alunos.map((aluno) => (
-              <MenuItem key={aluno.id} value={aluno.id}>
-                {aluno.nome}
-              </MenuItem>
-            ))}
-          </Select>
+          {userRole === "USER" ? (
+            <TextField
+              label="Aluno:"
+              value={userName}
+              fullWidth
+              margin="normal"
+              disabled
+            />
+          ) : (
+            <Select
+              fullWidth
+              value={novaAvaliacao.alunoId}
+              onChange={(e) => setNovaAvaliacao({ ...novaAvaliacao, alunoId: e.target.value })}
+              displayEmpty
+              margin="normal"
+            >
+              <MenuItem value="">Selecione o Aluno</MenuItem>
+              {alunos.map((aluno) => (
+                <MenuItem key={aluno.id} value={aluno.id}>
+                  {aluno.nome}
+                </MenuItem>
+              ))}
+            </Select>
+          )}
 
           <Select
             fullWidth
             value={novaAvaliacao.professorId}
             onChange={(e) => setNovaAvaliacao({ ...novaAvaliacao, professorId: e.target.value })}
             displayEmpty
+            margin="normal"
           >
             <MenuItem value="">Selecione o Professor</MenuItem>
             {professores.map((prof) => (
@@ -307,6 +296,7 @@ const Avaliacoes = () => {
             value={novaAvaliacao.disciplinaId}
             onChange={(e) => setNovaAvaliacao({ ...novaAvaliacao, disciplinaId: e.target.value })}
             displayEmpty
+            margin="normal"
           >
             <MenuItem value="">Selecione a Disciplina</MenuItem>
             {disciplinas.map((disc) => (
